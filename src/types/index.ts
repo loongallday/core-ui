@@ -24,3 +24,8 @@ export interface PageHeaderProps {
   className?: string
 }
 
+// Re-export all type modules
+export type * from './responsive'
+export * from './component-props'
+export * from './variants'
+

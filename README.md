@@ -2,15 +2,30 @@
 
 Shared UI components and design system for Core ERP applications and plugins.
 
+## 🎉 Version 2.0 Released!
+
+Major improvements to responsiveness, configurability, and mobile optimization:
+- ✨ **Container queries** for component-level responsive design
+- ✨ **Theme configuration** system with runtime customization
+- ✨ **Component defaults** registry for global prop configuration
+- ✨ **Enhanced breakpoints** (xs to 3xl) and responsive hooks
+- ✨ **Mobile-optimized components** with touch-friendly variants
+- ✨ **Comprehensive design tokens** as CSS variables
+- ✨ **Responsive variant props** for dynamic sizing
+
+See [Migration Guide](./docs/v2-MIGRATION.md) for upgrade instructions.
+
 ## Overview
 
 `@core-erp/ui` is a comprehensive UI package that provides:
-- **48 shadcn/ui components** - Battle-tested, accessible React components
-- **Custom responsive components** - Page layouts optimized for all screen sizes
-- **Loading states** - Skeleton components for better UX
+- **56 Components** - 48 shadcn/ui + 6 responsive + 2 loading components
+- **Battle-tested & accessible** - WCAG 2.1 AA compliant
+- **Mobile-first responsive** - Optimized for all screen sizes
+- **Highly configurable** - Theme system with CSS variables
+- **Container queries** - Component-level responsiveness
 - **Tailwind preset** - Consistent design tokens across all apps
 - **Utilities & hooks** - Common formatters, helpers, and React hooks
-- **TypeScript support** - Full type safety out of the box
+- **Full TypeScript support** - Complete type safety
 
 ## Installation
 

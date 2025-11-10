@@ -23,12 +23,12 @@ export function PageHeader({
         className
       )}
     >
-      <div className="container mx-auto px-4 py-3 md:py-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="container mx-auto px-4 py-4 md:py-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl md:text-3xl font-bold truncate">{title}</h1>
             {subtitle && (
-              <p className="text-sm text-muted-foreground mt-1 truncate">
+              <p className="text-sm text-muted-foreground mt-2 truncate">
                 {subtitle}
               </p>
             )}

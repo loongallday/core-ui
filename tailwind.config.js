@@ -14,6 +14,10 @@ import plugin from 'tailwindcss/plugin'
  * }
  */
 export default {
+  content: [
+    './src/**/*.{ts,tsx,js,jsx}',
+    './.storybook/**/*.{ts,tsx,js,jsx}',
+  ],
   darkMode: ['class'],
   theme: {
     container: {
@@ -26,11 +30,13 @@ export default {
         xl: '3rem',
       },
       screens: {
+        xs: '475px',
         sm: '640px',
         md: '768px',
         lg: '1024px',
         xl: '1280px',
         '2xl': '1400px',
+        '3xl': '1920px',
       },
     },
     extend: {
@@ -154,6 +160,7 @@ export default {
   },
   plugins: [
     require('tailwindcss-animate'),
+    require('@tailwindcss/container-queries'),
     plugin(function({ addUtilities, addComponents }) {
       addUtilities({
         // Touch-friendly minimum target size

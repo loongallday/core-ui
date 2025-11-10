@@ -11,3 +11,6 @@ export * from './responsive'
 // Loading Components
 export * from './loading'
 
+// Theme Components
+export * from './theme-provider'
+

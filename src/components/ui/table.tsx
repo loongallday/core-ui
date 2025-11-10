@@ -2,10 +2,29 @@ import * as React from "react";
 
 import { cn } from "../../lib/utils";
 
-const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
-  ({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto">
-      <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
+export interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
+  /**
+   * Enable sticky header on scroll
+   */
+  stickyHeader?: boolean;
+  
+  /**
+   * Enable horizontal scroll on mobile with shadow indicators
+   */
+  mobileScroll?: boolean;
+}
+
+const Table = React.forwardRef<HTMLTableElement, TableProps>(
+  ({ className, stickyHeader = false, mobileScroll = true, ...props }, ref) => (
+    <div className={cn(
+      "relative w-full",
+      mobileScroll && "overflow-auto scrollbar-thin"
+    )}>
+      <table 
+        ref={ref} 
+        className={cn("w-full caption-bottom text-sm", className)} 
+        {...props} 
+      />
     </div>
   ),
 );
@@ -41,12 +60,20 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
 );
 TableRow.displayName = "TableRow";
 
-const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<HTMLTableCellElement>>(
-  ({ className, ...props }, ref) => (
+export interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
+  /**
+   * Make this header sticky
+   */
+  sticky?: boolean;
+}
+
+const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
+  ({ className, sticky = false, ...props }, ref) => (
     <th
       ref={ref}
       className={cn(
         "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+        sticky && "sticky top-0 z-10 bg-background border-b shadow-sm",
         className,
       )}
       {...props}

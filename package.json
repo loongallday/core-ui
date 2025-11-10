@@ -1,6 +1,6 @@
 {
   "name": "@core-erp/ui",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Shared UI components and design system for Core ERP applications",
   "type": "module",
   "main": "./dist/index.js",
@@ -31,21 +31,43 @@
       "types": "./dist/lib/index.d.ts",
       "import": "./dist/lib/index.js"
     },
+    "./lib/theme-config": {
+      "types": "./dist/lib/theme-config.d.ts",
+      "import": "./dist/lib/theme-config.js"
+    },
+    "./lib/component-defaults": {
+      "types": "./dist/lib/component-defaults.d.ts",
+      "import": "./dist/lib/component-defaults.js"
+    },
+    "./lib/breakpoints": {
+      "types": "./dist/lib/breakpoints.d.ts",
+      "import": "./dist/lib/breakpoints.js"
+    },
     "./hooks": {
       "types": "./dist/hooks/index.d.ts",
       "import": "./dist/hooks/index.js"
     },
-    "./styles": "./dist/styles/globals.css",
+    "./types": {
+      "types": "./dist/types/index.d.ts"
+    },
+    "./styles": "./src/styles/globals.css",
+    "./styles/tokens": "./src/styles/tokens.css",
     "./tailwind-preset": "./tailwind.config.js"
   },
   "files": [
     "dist",
-    "tailwind.config.js"
+    "src/styles",
+    "tailwind.config.js",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc && vite build",
     "dev": "vite build --watch",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "peerDependencies": {
     "react": "^18.0.0",
@@ -98,6 +120,10 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@storybook/addon-docs": "^10.0.6",
+    "@storybook/addon-onboarding": "^10.0.6",
+    "@storybook/react-vite": "^10.0.6",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@types/node": "^22.16.5",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
@@ -105,6 +131,7 @@
     "autoprefixer": "^10.4.21",
     "glob": "^10.3.10",
     "postcss": "^8.5.6",
+    "storybook": "^10.0.6",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
     "vite": "^5.4.19",
@@ -121,4 +148,3 @@
   "author": "Core ERP",
   "license": "MIT"
 }
-
