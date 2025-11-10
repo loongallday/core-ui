@@ -1,0 +1,542 @@
+# Core UI Package - Cursor AI Rules & Context
+
+## Project Overview
+
+This is **@core-erp/ui** - the centralized UI component library and design system for the Core ERP ecosystem. It provides shared components, utilities, and design tokens for the main Core ERP application and all plugins.
+
+### Key Architecture Points
+
+1. **Shared UI Package**: One package, used by main app and all plugins
+2. **Peer Dependency Model**: Plugins use @core-erp/ui as peer dependency
+3. **Design System**: Complete design tokens and component library
+4. **Build Target**: Library (not application)
+
+### Tech Stack
+
+- **React 18**: Functional components with hooks
+- **TypeScript 5**: Strict mode, full type safety
+- **Tailwind CSS 3**: Utility-first styling with custom preset
+- **Radix UI**: Accessible component primitives
+- **Vite 5**: Fast build tool for library bundling
+- **date-fns**: Date formatting and manipulation
+
+### Package Structure
+
+```
+@core-erp/ui/
+├── src/
+│   ├── components/
+│   │   ├── ui/              # 48 shadcn/ui components
+│   │   ├── responsive/      # 6 custom responsive components
+│   │   └── loading/         # 2 skeleton loading components
+│   ├── lib/                 # Utilities (cn, formatters)
+│   ├── hooks/               # Custom React hooks
+│   ├── styles/              # Global CSS and variables
+│   └── types/               # TypeScript type definitions
+├── dist/                    # Build output (gitignored)
+├── docs/                    # Comprehensive documentation
+├── tailwind.config.js       # Exportable Tailwind preset
+└── package.json             # Package metadata with exports
+```
+
+## Component Inventory
+
+### 48 shadcn/ui Components
+Standard, accessible UI components:
+- **Form Controls**: Button, Input, Textarea, Checkbox, Radio, Select, Switch, Slider, Calendar, Label, Form, InputOTP
+- **Data Display**: Table, Card, Badge, Avatar, Tooltip, HoverCard, Popover, Accordion, Collapsible, Chart, Carousel, AspectRatio
+- **Feedback**: Alert, AlertDialog, Dialog, Toast, Toaster, Progress, Skeleton, Drawer, Sheet
+- **Navigation**: Breadcrumb, Tabs, NavigationMenu, Menubar, DropdownMenu, ContextMenu, Command, Pagination, Sidebar
+- **Layout**: Separator, ScrollArea, Resizable, Toggle, ToggleGroup
+
+### 6 Custom Responsive Components
+- **PageContainer**: Responsive page wrapper with max-width control
+- **PageHeader**: Consistent page headers with title, subtitle, actions
+- **ResponsiveGrid**: Grid layout adapting to screen size
+- **ResponsiveStack**: Vertical/horizontal stacks with responsive spacing
+- **ResponsiveButton**: Button with responsive sizing
+- **ResponsiveTable**: Mobile-friendly table with card fallback
+
+### 2 Loading Components
+- **SkeletonCard**: Card skeleton loader
+- **SkeletonTable**: Table skeleton loader
+
+### Utilities
+- **cn()**: Class name merging with Tailwind conflict resolution
+- **formatDate()**: Locale-aware date formatting
+- **formatDateTime()**: Date and time formatting
+- **formatRelativeTime()**: Relative time ("2 hours ago")
+- **formatNumber()**: Number formatting with locale
+- **formatCurrency()**: Currency formatting (USD, THB)
+- **formatPercentage()**: Percentage formatting
+
+### Hooks
+- **useToast()**: Toast notification management (sonner)
+- **useIsMobile()**: Responsive breakpoint detection
+
+## Code Patterns to Follow
+
+### 1. Component Structure
+
+All UI components follow this pattern:
+
+```typescript
+import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '../../lib/utils'
+
+// Define variants using cva
+const componentVariants = cva(
+  "base-classes",
+  {
+    variants: {
+      variant: {
+        default: "default-classes",
+        secondary: "secondary-classes",
+      },
+      size: {
+        default: "default-size",
+        sm: "small-size",
+        lg: "large-size",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
+// Props interface extending HTML element
+export interface ComponentProps
+  extends React.HTMLAttributes<HTMLElement>,
+    VariantProps<typeof componentVariants> {
+  asChild?: boolean // For polymorphic components
+}
+
+// Component with forwardRef
+const Component = React.forwardRef<HTMLElement, ComponentProps>(
+  ({ className, variant, size, ...props }, ref) => {
+    return (
+      <element
+        className={cn(componentVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    )
+  }
+)
+Component.displayName = "Component"
+
+export { Component, componentVariants }
+```
+
+### 2. Responsive Components
+
+Custom responsive components use Tailwind breakpoints:
+
+```typescript
+import { cn } from '../../lib/utils'
+
+interface ResponsiveComponentProps {
+  // Required props
+  title: string
+  // Optional props
+  subtitle?: string
+  className?: string
+}
+
+export function ResponsiveComponent({ 
+  title, 
+  subtitle, 
+  className 
+}: ResponsiveComponentProps) {
+  return (
+    <div className={cn(
+      // Mobile first
+      'flex flex-col gap-2 p-4',
+      // Tablet
+      'md:flex-row md:items-center md:gap-4 md:p-6',
+      // Desktop
+      'lg:gap-6 lg:p-8',
+      className
+    )}>
+      <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
+        {title}
+      </h1>
+      {subtitle && (
+        <p className="text-sm md:text-base text-muted-foreground">
+          {subtitle}
+        </p>
+      )}
+    </div>
+  )
+}
+```
+
+### 3. Utility Functions
+
+All utilities are pure functions with clear types:
+
+```typescript
+/**
+ * Format a date with locale support
+ * @param date - Date to format
+ * @param locale - User's locale
+ * @param formatStr - date-fns format string
+ * @returns Formatted date string
+ */
+export function formatDate(
+  date: Date | string,
+  locale: SupportedLocale = 'en',
+  formatStr: string = 'PP'
+): string {
+  try {
+    const dateObj = typeof date === 'string' ? parseISO(date) : date
+    return format(dateObj, formatStr, { locale: dateFnsLocales[locale] })
+  } catch (error) {
+    console.error('Error formatting date:', error)
+    return String(date)
+  }
+}
+```
+
+### 4. Hooks
+
+Custom hooks follow React conventions:
+
+```typescript
+import { useState, useEffect } from 'react'
+
+export function useCustomHook(initialValue: string) {
+  const [value, setValue] = useState(initialValue)
+  
+  useEffect(() => {
+    // Side effects here
+  }, [value])
+  
+  return { value, setValue }
+}
+```
+
+## Design System
+
+### Color System (Semantic Tokens)
+
+```css
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
+}
+```
+
+**Usage in Tailwind**:
+```tsx
+<div className="bg-background text-foreground">
+<div className="bg-primary text-primary-foreground">
+<div className="bg-destructive text-destructive-foreground">
+<div className="border border-border">
+```
+
+### Typography Scale
+
+```typescript
+text-xs    // 0.75rem (12px)
+text-sm    // 0.875rem (14px)
+text-base  // 1rem (16px)     - Default
+text-lg    // 1.125rem (18px)
+text-xl    // 1.25rem (20px)
+text-2xl   // 1.5rem (24px)
+text-3xl   // 1.875rem (30px) - Page headings
+text-4xl   // 2.25rem (36px)
+```
+
+### Spacing Scale
+
+```typescript
+gap-0   // 0
+gap-1   // 0.25rem (4px)
+gap-2   // 0.5rem (8px)
+gap-3   // 0.75rem (12px)
+gap-4   // 1rem (16px)    - Default
+gap-6   // 1.5rem (24px)
+gap-8   // 2rem (32px)
+gap-12  // 3rem (48px)
+gap-16  // 4rem (64px)
+```
+
+### Responsive Breakpoints
+
+```typescript
+sm:   640px   // Small tablets
+md:   768px   // Tablets
+lg:   1024px  // Small desktops
+xl:   1280px  // Desktops
+2xl:  1536px  // Large desktops
+```
+
+## Naming Conventions
+
+### Files
+- **Components**: PascalCase (Button.tsx, PageHeader.tsx, ResponsiveGrid.tsx)
+- **Utilities**: camelCase (utils.ts, formatters.ts)
+- **Hooks**: camelCase with "use" prefix (use-toast.ts, use-mobile.ts)
+- **Types**: camelCase (index.ts in types/)
+
+### Code
+- **Components**: PascalCase (Button, PageHeader)
+- **Functions**: camelCase (formatDate, cn)
+- **Hooks**: camelCase with "use" prefix (useToast, useIsMobile)
+- **Types/Interfaces**: PascalCase (ButtonProps, ComponentProps)
+- **Constants**: UPPER_SNAKE_CASE or camelCase depending on context
+
+### CSS Classes
+- Use Tailwind utility classes
+- Use semantic color tokens (bg-primary, text-muted-foreground)
+- Mobile-first responsive (base, then md:, lg:, xl:)
+
+## Important Guidelines
+
+### When Adding Components
+
+1. **Determine Category**: UI, Responsive, or Loading?
+2. **Create Component File**: In appropriate directory
+3. **Follow Patterns**: Use existing components as reference
+4. **Use TypeScript**: Full type safety required
+5. **Export from Index**: Add to appropriate index.ts
+6. **Document**: Add JSDoc comments
+7. **Test**: Verify in consumer app (core-erp)
+
+### When Adding Utilities
+
+1. **Location**: Add to `lib/utils.ts` or `lib/formatters.ts`
+2. **Pure Functions**: No side effects
+3. **Type Safety**: Explicit parameter and return types
+4. **Error Handling**: Try-catch for operations that can fail
+5. **Documentation**: JSDoc comments with examples
+6. **Export**: Add to `lib/index.ts`
+
+### When Adding Hooks
+
+1. **Location**: Create file in `hooks/` directory
+2. **Naming**: Start with "use" (useCustomHook)
+3. **React Rules**: Follow hooks rules (no conditional calls)
+4. **Return Object**: Return object with named properties
+5. **Dependencies**: Specify all dependencies in useEffect
+6. **Export**: Add to `hooks/index.ts`
+
+### Security Rules
+
+- ✅ All components use React's built-in XSS protection
+- ✅ Sanitize user content before rendering
+- ✅ Use dangerouslySetInnerHTML sparingly
+- ✅ Validate props with TypeScript
+- ✅ No secrets in code (this is a UI package)
+
+### Accessibility Standards
+
+- ✅ WCAG 2.1 AA minimum compliance
+- ✅ Keyboard navigation for all interactive elements
+- ✅ ARIA attributes where needed
+- ✅ Sufficient color contrast (4.5:1 normal, 3:1 large)
+- ✅ Focus indicators visible
+- ✅ Screen reader friendly
+
+### Performance Rules
+
+- ✅ Use React.memo for expensive components
+- ✅ Avoid inline function definitions in render
+- ✅ Use CSS transforms for animations (GPU-accelerated)
+- ✅ Tree-shakable exports (named exports only)
+- ✅ Mark peer dependencies as external in build
+
+## Build System
+
+### Development
+
+```bash
+npm run dev          # Watch mode - rebuilds on changes
+npm run type-check   # TypeScript validation
+```
+
+### Production
+
+```bash
+npm run build        # Creates dist/ with ESM modules
+```
+
+### Build Output
+
+```
+dist/
+├── index.js (and .d.ts)
+├── components/
+│   ├── ui/index.js
+│   ├── responsive/index.js
+│   └── loading/index.js
+├── lib/index.js
+├── hooks/index.js
+└── styles/globals.css
+```
+
+## Export Strategy
+
+Package uses granular exports for tree-shaking:
+
+```typescript
+// Main entry
+import { Button } from '@core-erp/ui'
+
+// Specific paths (better tree-shaking)
+import { Button, Card } from '@core-erp/ui/components/ui'
+import { PageHeader } from '@core-erp/ui/components/responsive'
+import { SkeletonCard } from '@core-erp/ui/components/loading'
+import { cn, formatDate } from '@core-erp/ui/lib'
+import { useToast } from '@core-erp/ui/hooks'
+
+// Tailwind preset
+import uiPreset from '@core-erp/ui/tailwind-preset'
+```
+
+## Common Operations
+
+### Adding a New UI Component (shadcn/ui)
+
+1. Create file: `src/components/ui/new-component.tsx`
+2. Implement component following patterns
+3. Export from `src/components/ui/index.ts`
+4. Build: `npm run build`
+5. Test in core-erp
+
+### Adding a Responsive Component
+
+1. Create file: `src/components/responsive/NewComponent.tsx`
+2. Use responsive Tailwind classes
+3. Export from `src/components/responsive/index.ts`
+4. Build and test
+
+### Adding a Utility
+
+1. Add to `src/lib/utils.ts` or `src/lib/formatters.ts`
+2. Write JSDoc documentation
+3. Export from `src/lib/index.ts`
+4. Add types if needed
+5. Build and test
+
+### Adding a Hook
+
+1. Create file: `src/hooks/use-custom-hook.ts`
+2. Follow React hooks rules
+3. Export from `src/hooks/index.ts`
+4. Build and test
+
+## Integration with Consumers
+
+### Core ERP (Main Application)
+
+Installs as file dependency:
+```json
+{
+  "dependencies": {
+    "@core-erp/ui": "file:../core-ui"
+  }
+}
+```
+
+### Plugins
+
+Use as peer dependency:
+```json
+{
+  "peerDependencies": {
+    "@core-erp/ui": "^1.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}
+```
+
+### Tailwind Configuration
+
+Consumers use the preset:
+```typescript
+import uiPreset from '@core-erp/ui/tailwind-preset'
+
+export default {
+  presets: [uiPreset],
+  content: [
+    './src/**/*.{ts,tsx}',
+    './node_modules/@core-erp/ui/dist/**/*.js'
+  ]
+}
+```
+
+## Documentation
+
+Comprehensive documentation in `docs/` directory:
+
+- **PROJECT_OVERVIEW.md** - Start here: what, why, what's included
+- **ARCHITECTURE.md** - Technical deep dive
+- **COMPONENT_CATALOG.md** - All components with examples
+- **DESIGN_SYSTEM.md** - Design tokens and guidelines
+- **DEVELOPMENT_GUIDE.md** - Development workflow
+- **PLUGIN_INTEGRATION.md** - Using in plugins
+- **MIGRATION_GUIDE.md** - Migrating to @core-erp/ui
+- **API_REFERENCE.md** - Complete API documentation
+
+## Edge Cases to Remember
+
+- All color values use HSL without `hsl()` wrapper for alpha channel support
+- CSS variables use semantic names (--primary, not --blue-500)
+- Radix UI components need `asChild` prop for composition
+- React.forwardRef required for ref forwarding
+- displayName should be set on all forwardRef components
+- Tailwind content paths must include `@core-erp/ui/dist/**/*.js`
+- Build output is ESM only (no CommonJS)
+- Peer dependencies are external (not bundled)
+- Components must work without @core-erp/ui styles (consumers import)
+
+## When Working on This Project
+
+1. **Read docs/PROJECT_OVERVIEW.md** - Comprehensive guide
+2. **Follow existing patterns** - Check similar components
+3. **Type safety first** - Full TypeScript coverage
+4. **Accessibility** - WCAG 2.1 AA minimum
+5. **Mobile-first** - Responsive by default
+6. **Document changes** - Update docs/ as needed
+7. **Test in consumers** - Verify in core-erp or plugins
+
+## Quick Commands
+
+```bash
+# Development
+npm run dev          # Watch mode
+npm run build        # Production build
+npm run type-check   # TypeScript validation
+
+# In consumer (core-erp)
+npm install          # Re-link after changes
+npm run dev          # Use with changes
+```
+
+---
+
+**Remember**: This is a shared package. Changes affect all consumers (core-erp + all plugins). Test thoroughly.
+
+**Version**: 1.0.0  
+**Status**: Production Ready  
+**Last Updated**: November 10, 2025

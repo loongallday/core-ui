@@ -1,0 +1,252 @@
+# @core-erp/ui - Cursor AI Rules
+
+## Project Type
+Shared UI component library and design system for Core ERP ecosystem. Library package (not application).
+
+## Tech Stack
+- React 18 + TypeScript 5 (strict mode)
+- Tailwind CSS 3 (utility-first + custom preset)
+- Radix UI (accessible primitives)
+- Vite 5 (library bundler)
+- shadcn/ui patterns
+
+## Package Architecture
+```
+@core-erp/ui/
+├── src/
+│   ├── components/
+│   │   ├── ui/              # 48 shadcn/ui components
+│   │   ├── responsive/      # 6 custom components
+│   │   └── loading/         # 2 skeleton components
+│   ├── lib/                 # Utilities (cn, formatters)
+│   ├── hooks/               # React hooks
+│   ├── styles/              # CSS variables
+│   └── types/               # TypeScript types
+├── dist/                    # Build output
+└── tailwind.config.js       # Exportable preset
+```
+
+## Core Principles
+
+1. **Accessibility First**: WCAG 2.1 AA minimum, keyboard nav, ARIA labels
+2. **Mobile First**: Responsive by default, use Tailwind breakpoints
+3. **Type Safety**: Full TypeScript, strict mode, explicit types
+4. **Pure Components**: No side effects, composable, reusable
+5. **Tree-Shakable**: Named exports, granular imports
+
+## Component Pattern
+
+```typescript
+import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '../../lib/utils'
+
+const componentVariants = cva("base-classes", {
+  variants: {
+    variant: { default: "...", secondary: "..." },
+    size: { default: "...", sm: "...", lg: "..." }
+  },
+  defaultVariants: { variant: "default", size: "default" }
+})
+
+export interface ComponentProps
+  extends React.HTMLAttributes<HTMLElement>,
+    VariantProps<typeof componentVariants> {
+  asChild?: boolean
+}
+
+const Component = React.forwardRef<HTMLElement, ComponentProps>(
+  ({ className, variant, size, ...props }, ref) => (
+    <element
+      className={cn(componentVariants({ variant, size, className }))}
+      ref={ref}
+      {...props}
+    />
+  )
+)
+Component.displayName = "Component"
+
+export { Component, componentVariants }
+```
+
+## Naming Conventions
+
+- **Components**: PascalCase (Button.tsx, PageHeader.tsx)
+- **Utilities**: camelCase (utils.ts, formatters.ts)
+- **Hooks**: camelCase with "use" (use-toast.ts, use-mobile.ts)
+- **Types**: PascalCase (ButtonProps, ComponentProps)
+- **CSS Classes**: Tailwind utilities, semantic tokens
+
+## Design System
+
+### Colors (Semantic Tokens)
+Use semantic names, not hard-coded colors:
+```tsx
+bg-background, bg-card, bg-primary, bg-secondary, bg-muted, bg-destructive
+text-foreground, text-muted-foreground, text-primary-foreground
+border-border, ring-ring
+```
+
+### Responsive Breakpoints
+```
+sm:  640px   md:  768px   lg:  1024px   xl:  1280px   2xl: 1536px
+```
+
+### Typography
+```
+text-xs (12px)   text-sm (14px)   text-base (16px)
+text-lg (18px)   text-xl (20px)   text-2xl (24px)   text-3xl (30px)
+```
+
+### Spacing
+```
+gap-1 (4px)   gap-2 (8px)   gap-4 (16px)   gap-6 (24px)   gap-8 (32px)
+```
+
+## Code Standards
+
+### TypeScript
+- ✅ Strict mode enabled
+- ✅ Explicit parameter and return types
+- ✅ Avoid `any`, use `unknown` if needed
+- ✅ Props interfaces extend HTML element types
+- ✅ Use `React.forwardRef` for ref forwarding
+
+### React
+- ✅ Functional components only
+- ✅ Use hooks (useState, useEffect, useMemo, etc.)
+- ✅ Set `displayName` on forwardRef components
+- ✅ Use `React.memo` for performance-critical components
+- ✅ No inline function definitions in render
+
+### Tailwind
+- ✅ Mobile-first approach (base, then md:, lg:, xl:)
+- ✅ Use semantic color tokens
+- ✅ Use `cn()` for class merging
+- ✅ Avoid hard-coded values
+- ✅ Use design system tokens
+
+### Accessibility
+- ✅ Keyboard navigation support
+- ✅ ARIA labels where needed
+- ✅ Sufficient color contrast (4.5:1 normal, 3:1 large)
+- ✅ Focus indicators visible
+- ✅ Screen reader friendly
+
+## Important Rules
+
+### DO's ✅
+- Use semantic color tokens (bg-primary, not bg-blue-500)
+- Follow mobile-first responsive design
+- Write JSDoc comments for utilities and hooks
+- Export from barrel files (index.ts)
+- Use React.forwardRef for components that accept refs
+- Set displayName on all forwardRef components
+- Use cva for component variants
+- Handle errors gracefully in utilities
+- Test in consumer apps (core-erp) after changes
+
+### DON'Ts ❌
+- Don't use hard-coded colors or spacing
+- Don't create components that exist in shadcn/ui
+- Don't use inline styles
+- Don't bundle peer dependencies
+- Don't use default exports (use named exports)
+- Don't ignore accessibility
+- Don't skip TypeScript types
+- Don't use `any` type
+
+## Export Strategy
+
+Granular exports for tree-shaking:
+```typescript
+// Specific paths (recommended)
+import { Button } from '@core-erp/ui/components/ui'
+import { PageHeader } from '@core-erp/ui/components/responsive'
+import { cn, formatDate } from '@core-erp/ui/lib'
+import { useToast } from '@core-erp/ui/hooks'
+
+// Main entry (imports everything)
+import { Button } from '@core-erp/ui'
+```
+
+## Common Tasks
+
+### Adding UI Component (shadcn/ui)
+1. Create `src/components/ui/new-component.tsx`
+2. Follow component pattern (cva, forwardRef, displayName)
+3. Export from `src/components/ui/index.ts`
+4. Run `npm run build`
+5. Test in core-erp
+
+### Adding Responsive Component
+1. Create `src/components/responsive/NewComponent.tsx`
+2. Use Tailwind responsive classes (base, md:, lg:)
+3. Export from `src/components/responsive/index.ts`
+4. Build and test
+
+### Adding Utility
+1. Add to `src/lib/utils.ts` or `src/lib/formatters.ts`
+2. Write JSDoc documentation
+3. Full TypeScript types
+4. Export from `src/lib/index.ts`
+5. Build and test
+
+### Adding Hook
+1. Create `src/hooks/use-custom-hook.ts`
+2. Follow React hooks rules
+3. Return object with named properties
+4. Export from `src/hooks/index.ts`
+5. Build and test
+
+## Build Commands
+
+```bash
+npm run dev          # Watch mode (rebuilds on changes)
+npm run build        # Production build (creates dist/)
+npm run type-check   # TypeScript validation
+```
+
+## Integration
+
+### Used by Core ERP
+File dependency: `"@core-erp/ui": "file:../core-ui"`
+
+### Used by Plugins
+Peer dependency: `"@core-erp/ui": "^1.0.0"` in peerDependencies
+
+### Tailwind in Consumers
+```typescript
+import uiPreset from '@core-erp/ui/tailwind-preset'
+export default {
+  presets: [uiPreset],
+  content: ['./src/**/*.{ts,tsx}', './node_modules/@core-erp/ui/dist/**/*.js']
+}
+```
+
+## Documentation
+
+Comprehensive docs in `docs/` directory:
+- **docs/PROJECT_OVERVIEW.md** - Start here
+- **docs/COMPONENT_CATALOG.md** - All 56 components
+- **docs/DESIGN_SYSTEM.md** - Design tokens
+- **docs/DEVELOPMENT_GUIDE.md** - Development workflow
+- **docs/API_REFERENCE.md** - Complete API docs
+
+Full rules: `.cursor/rules/core-ui-project.mdc`
+
+## Key Reminders
+
+- This is a **shared package** - changes affect all consumers
+- Build is **ESM only** (no CommonJS)
+- Peer dependencies are **external** (not bundled)
+- Always **test in consumer apps** after changes
+- Components must be **accessible** (WCAG 2.1 AA)
+- Use **semantic tokens**, not hard-coded values
+- **Mobile-first** responsive design
+- **Type safety** is mandatory
+
+---
+
+**Version**: 1.0.0 | **Status**: Production Ready
+
